@@ -1,0 +1,45 @@
+{{ define "main" }}
+<h1>Bienvenue dans les Ténèbres ⚡</h1>
+
+<p>
+    Ce site émerge des abysses numériques, là où le code rencontre l'obscurité.
+    Ici, vous trouverez des fragments de savoir technique arrachés aux profondeurs
+    du développement backend.
+</p>
+
+<h2>Sections</h2>
+
+<ul class="post-list">
+    <li>
+        <h3 class="post-title">
+            <a href="/about/">About Me ⚔️</a>
+        </h3>
+        <p>Découvrez qui se cache dans l'ombre du clavier...</p>
+    </li>
+    
+    <li>
+        <h3 class="post-title">
+            <a href="/healthcheck/">Healthcheck ☠️</a>
+        </h3>
+        <p>Billets techniques forgés dans les flammes de l'expérience.</p>
+    </li>
+</ul>
+
+{{ if (where .Site.RegularPages "Section" "healthcheck") }}
+<h2>Derniers Articles Techniques</h2>
+<ul class="post-list">
+    {{ range first 3 (where .Site.RegularPages "Section" "healthcheck").ByDate.Reverse }}
+    <li>
+        <div class="post-meta">{{ .Date.Format "2 Jan 2006" }}</div>
+        <h3 class="post-title">
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+        </h3>
+        {{ if .Summary }}
+        <p>{{ .Summary }}</p>
+        {{ end }}
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
+
+{{ end }}

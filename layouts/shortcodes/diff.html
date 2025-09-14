@@ -1,0 +1,88 @@
+{{ $lang := .Get "lang" | default "go" }}
+{{ $lines := split .Inner "\n" }}
+<div class="code-diff">
+{{ range $lines }}{{ $line := . }}{{ if ne $line "" }}{{ if hasPrefix $line "+" }}<div class="diff-line diff-added">{{ substr $line 1 | htmlEscape }}</div>
+{{ else if hasPrefix $line "-" }}<div class="diff-line diff-removed">{{ substr $line 1 | htmlEscape }}</div>
+{{ else }}<div class="diff-line diff-context">{{ $line | htmlEscape }}</div>
+{{ end }}{{ end }}{{ end }}
+</div>
+
+<style>
+.code-diff {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    margin: 1.5rem 0;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 14px;
+    line-height: 1.45;
+    overflow-x: auto;
+}
+
+.diff-line {
+    padding: 2px 16px;
+    margin: 0;
+    white-space: pre;
+    position: relative;
+}
+
+.diff-added {
+    background-color: rgba(46, 160, 67, 0.2);
+    color: #e6edf3;
+}
+
+.diff-added::before {
+    content: "+";
+    color: #3fb950;
+    font-weight: bold;
+    position: absolute;
+    left: 4px;
+}
+
+.diff-removed {
+    background-color: rgba(248, 81, 73, 0.2);
+    color: #e6edf3;
+}
+
+.diff-removed::before {
+    content: "-";
+    color: #f85149;
+    font-weight: bold;
+    position: absolute;
+    left: 4px;
+}
+
+.diff-context {
+    color: #e6edf3;
+}
+
+.diff-context::before {
+    content: " ";
+    position: absolute;
+    left: 4px;
+}
+
+.diff-line {
+    padding-left: 24px;
+}
+
+/* Mode clair */
+body.light-mode .code-diff {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+}
+
+body.light-mode .diff-added {
+    background-color: rgba(26, 127, 55, 0.15);
+    color: #24292f;
+}
+
+body.light-mode .diff-removed {
+    background-color: rgba(212, 51, 43, 0.15);
+    color: #24292f;
+}
+
+body.light-mode .diff-context {
+    color: #24292f;
+}
+</style>

@@ -1,0 +1,32 @@
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+
+<p>{{ .Content }}</p>
+
+{{ $healthcheckPages := where .Site.RegularPages "Section" "healthcheck" }}
+{{ if $healthcheckPages }}
+<ul class="post-list">
+    {{ range $healthcheckPages.ByDate.Reverse }}
+    {{ $firstLetter := substr .Title 0 1 }}
+    {{ $remainingTitle := substr .Title 1 }}
+    <li>
+        <a href="{{ .Permalink }}" class="post-link">
+            <div class="initial-letter" data-letter="{{ $firstLetter }}"></div>
+            <div class="post-watermark">{{ .Title }}</div>
+            <div class="post-item">
+                <h3 class="post-title">
+                    {{ $remainingTitle }}
+                </h3>
+                <div class="post-meta">
+                    {{ partial "date-format.html" .Date }} • by <span class="author">Jean-Yves CAMIER</span>
+                </div>
+            </div>
+        </a>
+    </li>
+    {{ end }}
+</ul>
+{{ else }}
+<p><em>No technical posts in the darkness... for now.</em></p>
+{{ end }}
+
+{{ end }}

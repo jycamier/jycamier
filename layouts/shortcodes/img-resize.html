@@ -1,0 +1,4 @@
+{{ $img := resources.Get (.Get "src") }}
+{{ $size := .Get "size" | default "400x" }}
+{{ $resized := $img.Resize $size }}
+<img src="{{ $resized.Permalink }}" alt="{{ .Get "alt" | default "" }}" style="display: block; margin: 2rem auto; {{ .Get "style" | default "" }}">

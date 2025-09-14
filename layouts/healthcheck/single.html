@@ -1,0 +1,12 @@
+{{ define "main" }}
+<h1>{{ .Title }}</h1>
+
+<div class="post-meta">{{ partial "date-format.html" .Date }}</div>
+
+{{ .Content }}
+
+<hr style="border: 1px solid #666; margin: 2rem 0;">
+
+<p><a href="/">← Retour aux billets techniques</a></p>
+
+{{ end }}

@@ -1,0 +1,95 @@
+{{ $lang := .Get "lang" | default "go" }}
+<div class="code-diff">
+<pre><code class="language-{{ $lang }}">{{ .Inner | htmlEscape }}</code></pre>
+</div>
+
+<style>
+.code-diff {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    margin: 1rem 0;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    overflow-x: auto;
+}
+
+.code-diff pre {
+    margin: 0;
+    padding: 16px;
+    background: transparent;
+    overflow-x: auto;
+}
+
+.code-diff code {
+    background: transparent;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.45;
+    color: #e6edf3;
+}
+
+/* Styles pour les lignes diff */
+.code-diff .line {
+    display: block;
+    width: 100%;
+    padding: 0 0.5em;
+    margin: 0;
+}
+
+.code-diff .line-added {
+    background-color: rgba(46, 160, 67, 0.15);
+    color: #e6edf3;
+}
+
+.code-diff .line-added::before {
+    content: "+";
+    color: #3fb950;
+    font-weight: bold;
+    margin-right: 0.5em;
+}
+
+.code-diff .line-removed {
+    background-color: rgba(248, 81, 73, 0.15);
+    color: #e6edf3;
+}
+
+.code-diff .line-removed::before {
+    content: "-";
+    color: #f85149;
+    font-weight: bold;
+    margin-right: 0.5em;
+}
+
+.code-diff .line-context {
+    color: #e6edf3;
+}
+
+.code-diff .line-context::before {
+    content: " ";
+    margin-right: 0.5em;
+}
+
+/* Mode clair */
+body.light-mode .code-diff {
+    background: #f6f8fa;
+    border: 1px solid #d0d7de;
+}
+
+body.light-mode .code-diff code {
+    color: #24292f;
+}
+
+body.light-mode .code-diff .line-added {
+    background-color: rgba(26, 127, 55, 0.15);
+    color: #24292f;
+}
+
+body.light-mode .code-diff .line-removed {
+    background-color: rgba(212, 51, 43, 0.15);
+    color: #24292f;
+}
+
+body.light-mode .code-diff .line-context {
+    color: #24292f;
+}
+</style>

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv:*)",
+      "Bash(mkdir:*)",
+      "Bash(hugo server:*)",
+      "Bash(curl:*)",
+      "Bash(pkill:*)",
+      "Bash(hugo:*)",
+      "Bash(open index.html)",
+      "WebFetch(domain:jycamier.github.io)",
+      "WebFetch(domain:localhost)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

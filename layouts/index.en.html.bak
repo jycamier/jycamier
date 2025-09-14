@@ -1,0 +1,45 @@
+{{ define "main" }}
+<h1>Welcome to the Digital Darkness ⚡</h1>
+
+<p>
+    This site emerges from the digital abyss, where code meets darkness.
+    Here, you'll find fragments of technical knowledge torn from the depths
+    of backend development.
+</p>
+
+<h2>Sections</h2>
+
+<ul class="post-list">
+    <li>
+        <h3 class="post-title">
+            <a href="/en/about/">About Me ⚔️</a>
+        </h3>
+        <p>Discover who hides in the shadow of the keyboard...</p>
+    </li>
+    
+    <li>
+        <h3 class="post-title">
+            <a href="/en/healthcheck/">Healthcheck ☠️</a>
+        </h3>
+        <p>Technical posts forged in the flames of experience.</p>
+    </li>
+</ul>
+
+{{ if (where .Site.RegularPages "Section" "healthcheck") }}
+<h2>Latest Technical Articles</h2>
+<ul class="post-list">
+    {{ range first 3 (where .Site.RegularPages "Section" "healthcheck").ByDate.Reverse }}
+    <li>
+        <div class="post-meta">{{ .Date.Format "Jan 2, 2006" }}</div>
+        <h3 class="post-title">
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+        </h3>
+        {{ if .Summary }}
+        <p>{{ .Summary }}</p>
+        {{ end }}
+    </li>
+    {{ end }}
+</ul>
+{{ end }}
+
+{{ end }}

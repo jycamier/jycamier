@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Billet Technique Black Metal</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 2rem;
+            font-family: "Courier New", monospace;
+            background: black;
+            color: #eee;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Fond granuleux et abîmé --- */
+        .film-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #444 10%, #000 90%);
+            filter: grayscale(100%) contrast(2) brightness(0.9);
+            animation: flicker 2s infinite alternate;
+            z-index: -3;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                    repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0px, rgba(0,0,0,0.12) 1px),
+                    repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0px, rgba(0,0,0,0.12) 1px),
+                    repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0px, rgba(0,0,0,0.08) 2px);
+            background-size: 2px 2px, 2px 2px, 3px 3px;
+            opacity: 0.5;
+            animation: noiseMove 1s steps(4) infinite;
+            z-index: -2;
+        }
+
+        .scratches {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.15) 0,
+                    rgba(255,255,255,0.15) 1px,
+                    transparent 1px,
+                    transparent 50px
+            );
+            opacity: 0.2;
+            animation: scratchesMove 5s linear infinite;
+            z-index: -1;
+        }
+
+        /* --- Contenu blog --- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            background: rgba(0,0,0,0.75);
+            padding: 2rem;
+            border: 2px solid #666;
+            border-radius: 6px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.9);
+            animation: jitter 3s infinite alternate ease-in-out; /* compromis */
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 3px;
+            text-shadow: 0 0 6px #000;
+        }
+
+        p {
+            margin: 1rem 0;
+        }
+
+        /* --- Bloc de code highlight --- */
+        pre {
+            background: #111;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #555;
+            box-shadow: inset 0 0 12px rgba(255,255,255,0.1);
+            margin: 1.5rem 0;
+        }
+
+        code {
+            font-family: "Fira Code", monospace;
+            color: #eee;
+            font-size: 0.95rem;
+        }
+
+        /* Simulé highlight Go */
+        .kw { color: #ffcc66; }   /* mots-clés */
+        .fn { color: #66ccff; }   /* fonctions */
+        .ty { color: #99cc99; }   /* types */
+        .cm { color: #888; font-style: italic; } /* commentaires */
+        .st { color: #ff9966; }   /* strings */
+
+        /* --- Animations --- */
+        @keyframes flicker {
+            from { filter: grayscale(100%) contrast(2) brightness(0.85); }
+            to   { filter: grayscale(100%) contrast(2.5) brightness(1.1); }
+        }
+
+        @keyframes noiseMove {
+            0%   { background-position: 0 0, 0 0, 0 0; }
+            50%  { background-position: 2px -2px, -2px 2px, 1px 1px; }
+            100% { background-position: 0 0, 0 0, 0 0; }
+        }
+
+        @keyframes scratchesMove {
+            from { background-position: 0 0; }
+            to   { background-position: 100px 0; }
+        }
+
+        @keyframes jitter {
+            from { transform: translate(-0.7px, -0.3px) rotate(-0.12deg); }
+            to   { transform: translate(0.7px, 0.3px) rotate(0.12deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="film-background"></div>
+<div class="noise"></div>
+<div class="scratches"></div>
+
+<div class="container">
+    <h1>Écrire un Service en Go ⚔️</h1>
+    <p>
+        Les démons du backend se réveillent… Voici un exemple minimaliste
+        d’un service Go qui lance son exécution dans l’obscurité.
+    </p>
+
+    <pre><code><span class="cm">// Invocation sombre d’un service Go</span>
+<span class="kw">package</span> main
+
+<span class="kw">import</span> (
+    <span class="st">"fmt"</span>
+)
+
+<span class="kw">type</span> <span class="ty">Daemon</span> <span class="kw">struct</span> {}
+
+<span class="kw">func</span> (<span class="fn">d</span> <span class="ty">Daemon</span>) <span class="fn">Rise</span>() {
+    fmt.Println(<span class="st">"☠️  Le démon s’est éveillé…"</span>)
+}
+
+<span class="kw">func</span> main() {
+    d := <span class="ty">Daemon</span>{}
+    d.Rise()
+}
+</code></pre>
+
+    <p>
+        Ce petit programme définit une entité <code>Daemon</code> et invoque sa méthode <code>Rise()</code>.
+        Dans un vrai projet, ce serait le point de départ pour invoquer des modules,
+        établir des connexions et répandre les ténèbres.
+    </p>
+</div>
+</body>
+</html>

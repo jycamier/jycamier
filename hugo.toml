@@ -1,0 +1,64 @@
+baseURL = 'https://jycamier.github.io/jycamier/'
+defaultContentLanguage = 'fr'
+title = "Jean-Yves Camier – Parcours, Projets & Billets Techniques"
+canonifyURLs = true
+
+[params]
+  description = "Site vitrine de moi-même"
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+
+[languages]
+  [languages.fr]
+    languageCode = 'fr'
+    languageName = 'Français'
+    title = 'Trucs de Doigts'
+    weight = 1
+    [languages.fr.params]
+      description = "Site vitrine de moi-même"
+    [[languages.fr.menu.main]]
+      name = "GET /healthcheck"
+      url = "/"
+      weight = 1
+    [[languages.fr.menu.main]]
+      name = "GET /whoami"
+      url = "/about/"
+      weight = 2
+    [[languages.fr.menu.main]]
+      name = "GET /event-stream"
+      url = "/index.xml"
+      weight = 3
+
+  [languages.en]
+    languageCode = 'en'
+    languageName = 'English'
+    title = 'Digital Stuff'
+    weight = 2
+    [languages.en.params]
+      description = "Technical blog emerged from the darkness of development"
+    [[languages.en.menu.main]]
+      name = "GET /healthcheck"
+      url = "/en/"
+      weight = 1
+    [[languages.en.menu.main]]
+      name = "GET /whoami"
+      url = "/en/about/"
+      weight = 2
+    [[languages.en.menu.main]]
+      name = "GET /event-stream"
+      url = "/en/index.xml"
+      weight = 3
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+  [markup.highlight]
+    style = "github-dark"
+    lineNos = false
+
+# Mermaid configuration
+[params.mermaid]
+  enable = true

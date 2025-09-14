@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ if .Title }}{{ .Title }} - {{ end }}{{ .Site.Title }}</title>
+    
+    <!-- Google Fonts - Gothic/Medieval fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    
+    <!-- RSS Feed -->
+    {{ range .AlternativeOutputFormats -}}
+    {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
+    {{ end -}}
+    <style>
+        @font-face {
+            font-family: 'WeThePeople';
+            src: url('{{ "fonts/WeThePeople.ttf" | absURL }}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        body {
+            margin: 0;
+            padding: 2rem;
+            font-family: "Courier New", monospace;
+            background: black;
+            color: #eee;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Vidéo de fond --- */
+        .video-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -4;
+        }
+
+        /* --- Overlay sombre sur la vidéo --- */
+        .film-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(68,68,68,0.8) 10%, rgba(0,0,0,0.9) 90%);
+            filter: grayscale(100%) contrast(2) brightness(0.9);
+            animation: flicker 2s infinite alternate;
+            z-index: -3;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                    repeating-linear-gradient(0deg, rgba(255,255,255,0.12) 0px, rgba(0,0,0,0.12) 1px),
+                    repeating-linear-gradient(90deg, rgba(255,255,255,0.12) 0px, rgba(0,0,0,0.12) 1px),
+                    repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0px, rgba(0,0,0,0.08) 2px);
+            background-size: 2px 2px, 2px 2px, 3px 3px;
+            opacity: 0.5;
+            animation: noiseMove 1s steps(4) infinite;
+            z-index: -2;
+        }
+
+        .scratches {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: repeating-linear-gradient(
+                    90deg,
+                    rgba(255,255,255,0.15) 0,
+                    rgba(255,255,255,0.15) 1px,
+                    transparent 1px,
+                    transparent 50px
+            );
+            opacity: 0.2;
+            animation: scratchesMove 5s linear infinite;
+            z-index: -1;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-bottom: 2px solid #666;
+        }
+
+        nav a {
+            color: #eee;
+            text-decoration: none;
+            margin: 0 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #ffcc66;
+            text-shadow: 0 0 6px #ffcc66;
+        }
+
+        nav a.active {
+            color: #ff9966;
+            text-shadow: 0 0 6px #ff9966;
+        }
+
+        /* --- Contenu --- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            background: rgba(0,0,0,0.75);
+            padding: 2rem;
+            border: 2px solid #666;
+            border-radius: 6px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.9);
+            animation: jitter 3s infinite alternate ease-in-out;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            text-align: center;
+            letter-spacing: 3px;
+            text-shadow: 0 0 6px #000;
+        }
+
+        h2, h3 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ffcc66;
+            text-shadow: 0 0 4px #000;
+        }
+
+        p {
+            margin: 1rem 0;
+        }
+
+        a {
+            color: #66ccff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #ffcc66;
+            text-shadow: 0 0 4px #ffcc66;
+        }
+
+        /* --- Bloc de code highlight --- */
+        pre {
+            background: #111;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            border: 1px solid #555;
+            box-shadow: inset 0 0 12px rgba(255,255,255,0.1);
+            margin: 1.5rem 0;
+            position: relative;
+        }
+
+        /* Copy button styles */
+        .copy-button {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #eee;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s ease;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        pre:hover .copy-button {
+            opacity: 1;
+        }
+
+        .copy-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .copy-button.copied {
+            background: rgba(102, 204, 102, 0.2);
+            border-color: rgba(102, 204, 102, 0.4);
+            color: #66cc66;
+        }
+
+        code {
+            font-family: "Fira Code", monospace;
+            color: #eee;
+            font-size: 0.95rem;
+        }
+
+        /* Simulé highlight */
+        .kw { color: #ffcc66; }   /* mots-clés */
+        .fn { color: #66ccff; }   /* fonctions */
+        .ty { color: #99cc99; }   /* types */
+        .cm { color: #888; font-style: italic; } /* commentaires */
+        .st { color: #ff9966; }   /* strings */
+
+        /* --- Liste des articles --- */
+        .post-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .post-list li {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(20,20,20,0.6) 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .post-list li::after {
+            content: attr(data-title);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            font-family: "Cinzel", serif;
+            font-size: 3.5rem;
+            color: rgba(60, 60, 60, 0.25);
+            font-weight: 600;
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .post-link {
+            display: block;
+            color: inherit;
+            text-decoration: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        .post-list li:hover {
+            border-color: #ffcc66;
+            box-shadow: 0 5px 15px rgba(255,204,102,0.2);
+            transform: translateY(-2px);
+            cursor: pointer;
+        }
+
+        /* Lettrine ornementale */
+        .initial-letter {
+            position: absolute;
+            top: -5px;
+            left: 5px;
+            width: 70px;
+            height: 85px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .initial-letter::before {
+            content: attr(data-letter);
+            font-family: 'WeThePeople', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffcc66 0%, #ff9966 30%, #ffaa44 70%, #ffcc66 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(2px 2px 3px rgba(0,0,0,0.8));
+            text-align: center;
+            line-height: 1;
+        }
+
+        .initial-letter::after {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,204,102,0.1) 50%, transparent 60%);
+            border-radius: 14px;
+            z-index: -1;
+        }
+
+        /* Watermark du titre en arrière-plan */
+        .post-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-5deg);
+            font-family: 'WeThePeople', serif;
+            font-size: 3.5rem;
+            color: rgba(60, 60, 60, 0.25);
+            font-weight: normal;
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+
+        .post-item {
+            margin-left: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .post-title {
+            font-size: 1.3rem;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.3;
+        }
+
+        .post-title a {
+            color: #eee;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .post-title a:hover {
+            color: #ffcc66;
+            text-shadow: 0 0 5px rgba(255,204,102,0.5);
+        }
+
+        .post-meta {
+            color: #999;
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 0.3rem;
+        }
+
+        .post-meta .author {
+            color: #ffcc66;
+            font-weight: bold;
+        }
+
+        /* --- Photo de profil --- */
+        .profile-photo-container {
+            position: relative;
+            float: right;
+            max-width: 350px;
+            width: 40%;
+            margin: 0 0 2rem 2rem;
+        }
+
+        .profile-photo {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            border-radius: 12px;
+            border: 4px solid #666;
+            filter: grayscale(70%) contrast(1.3) brightness(0.95);
+            box-shadow: 0 0 25px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.3);
+            animation: subtleGlow 3s infinite alternate ease-in-out;
+            transform: rotate(-1deg);
+            transition: all 0.3s ease;
+        }
+
+        .profile-photo:hover {
+            filter: grayscale(30%) contrast(1.5) brightness(1.1);
+            border-color: #ffcc66;
+            box-shadow: 0 0 30px rgba(255,204,102,0.4), inset 0 0 20px rgba(0,0,0,0.3);
+            transform: rotate(0deg) scale(1.02);
+        }
+
+        .photo-copyright {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.9);
+            color: #eee;
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-family: "Courier New", monospace;
+            letter-spacing: 0.5px;
+            border: 1px solid #666;
+            text-shadow: 0 0 2px #000;
+        }
+
+        .profile-photo-container:hover .photo-copyright {
+            opacity: 1;
+        }
+
+        /* --- Logo équipe --- */
+        .team-section {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .team-logo {
+            width: 120px;
+            height: 120px;
+            margin-right: 25px;
+            filter: grayscale(60%) brightness(1.1);
+            transition: filter 0.3s ease;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.6);
+            object-fit: contain;
+        }
+
+        .team-logo:hover {
+            filter: grayscale(20%) brightness(1.3);
+            box-shadow: 0 0 15px rgba(255,204,102,0.3);
+        }
+
+        .team-info h3 {
+            margin: 0;
+            color: #ffcc66;
+        }
+
+        @keyframes subtleGlow {
+            from { 
+                box-shadow: 0 0 25px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.3); 
+            }
+            to   { 
+                box-shadow: 0 0 30px rgba(255,255,255,0.1), inset 0 0 25px rgba(0,0,0,0.2); 
+            }
+        }
+
+        /* --- Responsive photo --- */
+        @media (max-width: 600px) {
+            .profile-photo-container {
+                float: none;
+                display: block;
+                margin: 0 auto 1.5rem auto;
+                max-width: 250px;
+                width: 80%;
+            }
+
+            .profile-photo {
+                transform: rotate(0deg);
+            }
+        }
+
+        /* --- Animations --- */
+        @keyframes flicker {
+            from { filter: grayscale(100%) contrast(2) brightness(0.85); }
+            to   { filter: grayscale(100%) contrast(2.5) brightness(1.1); }
+        }
+
+        @keyframes noiseMove {
+            0%   { background-position: 0 0, 0 0, 0 0; }
+            50%  { background-position: 2px -2px, -2px 2px, 1px 1px; }
+            100% { background-position: 0 0, 0 0, 0 0; }
+        }
+
+        @keyframes scratchesMove {
+            from { background-position: 0 0; }
+            to   { background-position: 100px 0; }
+        }
+
+        @keyframes jitter {
+            from { transform: translate(-0.7px, -0.3px) rotate(-0.12deg); }
+            to   { transform: translate(0.7px, 0.3px) rotate(0.12deg); }
+        }
+
+        /* --- Language flags --- */
+        .language-flag {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 2.5rem;
+            transition: all 0.3s ease;
+            line-height: 1;
+            padding: 0;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
+            text-decoration: none;
+            display: block;
+        }
+
+        .language-flag:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(2px 2px 8px rgba(0,0,0,0.9));
+        }
+
+        .language-flag.current {
+            text-shadow: 0 0 10px #ffcc66, 0 0 20px #ffcc66, 0 0 30px #ffcc66;
+        }
+
+        /* Social icons */
+        .social-icon {
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8)) grayscale(100%) brightness(1.2);
+            transition: all 0.3s ease;
+        }
+
+        .social-icon img[src*="github"] {
+            width: 36px;
+            height: 36px;
+        }
+
+        /* Invert GitHub logo colors in dark mode */
+        body:not(.light-mode) .social-icon img[src*="github"] {
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8)) grayscale(100%) brightness(1.2) invert(1);
+        }
+
+        body:not(.light-mode) .social-icon:hover img[src*="github"] {
+            filter: drop-shadow(2px 2px 8px rgba(0,0,0,0.9)) grayscale(0%) brightness(1.4) invert(1);
+        }
+
+        .social-icon:hover img {
+            transform: scale(1.1);
+            filter: drop-shadow(2px 2px 8px rgba(0,0,0,0.9)) grayscale(0%) brightness(1.4);
+        }
+
+        .social-icon:hover {
+            filter: drop-shadow(0 0 10px #ffcc66) drop-shadow(0 0 20px #ffcc66);
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+            
+            nav a {
+                margin: 0 1rem;
+                font-size: 0.9rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .dark-mode-toggle {
+                top: 10px;
+                right: 10px;
+                gap: 8px;
+            }
+
+            .language-flag {
+                font-size: 2rem;
+            }
+
+            .social-icon img {
+                width: 28px;
+                height: 28px;
+                object-fit: contain;
+            }
+        }
+
+        /* Mermaid diagram styling */
+        .mermaid {
+            text-align: center;
+            margin: 2rem auto;
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #darkModeBtn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 3rem;
+            transition: all 0.3s ease;
+            line-height: 1;
+            padding: 0;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
+        }
+
+        #darkModeBtn:hover {
+            transform: scale(1.1);
+            filter: drop-shadow(2px 2px 8px rgba(0,0,0,0.9));
+        }
+
+        /* Dark mode active - tête de mort avec liseret doré */
+        body:not(.light-mode) #darkModeBtn {
+            text-shadow: 0 0 10px #ffcc66, 0 0 20px #ffcc66, 0 0 30px #ffcc66;
+        }
+
+        /* Light Mode Styles */
+        body.light-mode {
+            background: rgba(245,250,255,0.95);
+            color: #f5f5f0;
+            font-family: "Georgia", "Times New Roman", serif;
+        }
+
+        body.light-mode .film-background,
+        body.light-mode .noise,
+        body.light-mode .scratches {
+            display: none;
+        }
+
+        body.light-mode a {
+            color: #2980b9;
+            font-weight: 600;
+        }
+
+        body.light-mode a:hover {
+            color: #1abc9c;
+        }
+
+        body.light-mode h1,
+        body.light-mode h2,
+        body.light-mode h3 {
+            color: #34495e;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+
+        body.light-mode .post-list li {
+            background: linear-gradient(135deg, rgba(255,252,240,0.6) 0%, rgba(250,245,235,0.55) 100%);
+            border: 2px solid rgba(210,180,140,0.5);
+            color: #2c3e50;
+            backdrop-filter: blur(6px);
+        }
+
+        body.light-mode .post-list li:hover {
+            border-color: #b8860b;
+            box-shadow: 0 8px 25px rgba(184,134,11,0.25);
+            background: linear-gradient(135deg, rgba(240,235,215,0.65) 0%, rgba(235,225,200,0.6) 100%);
+        }
+
+        body.light-mode .post-watermark {
+            color: rgba(149,165,166,0.2);
+            font-family: 'WeThePeople', serif;
+        }
+
+        body.light-mode .initial-letter::before {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 30%, #1abc9c 70%, #16a085 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        body.light-mode .team-logo {
+            filter: grayscale(20%) brightness(1.1) contrast(1.1);
+        }
+
+        body.light-mode .team-logo:hover {
+            filter: grayscale(0%) brightness(1.3) contrast(1.2);
+            box-shadow: 0 0 20px rgba(52,152,219,0.4);
+        }
+
+        body.light-mode .mermaid {
+            background: rgba(255,252,240,0.6);
+            border: 2px solid rgba(210,180,140,0.4);
+            color: #2c3e50;
+            backdrop-filter: blur(5px);
+        }
+
+
+
+
+        /* Table of Contents - Force same style in all modes */
+        .toc-container {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            bottom: 0 !important;
+            width: 220px !important;
+            height: 100vh !important;
+            overflow-y: auto !important;
+            background-color: rgb(13, 17, 23) !important;
+            background-image: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            padding: 1rem 0.5rem !important;
+            backdrop-filter: blur(15px) !important;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3) !important;
+            z-index: 100 !important;
+            transition: all 0.3s ease !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: none !important;
+            margin: 0 !important;
+            right: auto !important;
+            float: none !important;
+            color: inherit !important;
+        }
+
+
+        .toc-container.show {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        .toc-container:hover {
+            background: rgba(13, 17, 23, 0.98) !important;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.4) !important;
+        }
+
+        /* === RESPONSIVE DESIGN === */
+
+        /* Smartphone (portrait) */
+        @media (max-width: 480px) {
+            .toc-container {
+                display: none;
+            }
+
+
+            .container {
+                padding: 1rem;
+                max-width: 100%;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .dark-mode-toggle {
+                position: fixed;
+                top: 10px;
+                right: 10px;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.2rem; }
+        }
+
+        /* Tablette (portrait/paysage) */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .toc-container {
+                display: none;
+            }
+
+
+            .container {
+                padding: 1.5rem;
+                max-width: 100%;
+            }
+
+            nav ul {
+                gap: 1rem;
+            }
+
+            .dark-mode-toggle {
+                gap: 1rem;
+            }
+
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 1.8rem; }
+            h3 { font-size: 1.4rem; }
+        }
+
+        /* Laptop / petit desktop */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .toc-container {
+                display: none;
+            }
+
+
+            .container {
+                padding: 2rem;
+                max-width: 700px;
+            }
+        }
+
+        /* Desktop standard - TOC visible */
+        @media (min-width: 1025px) and (max-width: 1440px) {
+            .container {
+                max-width: 800px;
+            }
+        }
+
+        /* Très grand écran - TOC visible */
+        @media (min-width: 1441px) {
+            .container {
+                max-width: 900px;
+            }
+
+            .toc-container {
+                width: 250px;
+            }
+
+            .container.toc-visible {
+                margin-left: 300px;
+                margin-right: auto;
+            }
+        }
+
+        /* Center main content container */
+        .container {
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Shift container when TOC is visible - only on desktop+ */
+        @media (min-width: 1025px) {
+            .container.toc-visible {
+                margin-left: 280px;
+                margin-right: auto;
+            }
+        }
+
+
+        .table-of-contents {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: transparent !important;
+        }
+
+        .table-of-contents nav {
+            all: unset;
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .table-of-contents ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            text-align: left;
+            text-transform: none;
+            font-variant: normal;
+        }
+
+        .table-of-contents ul:first-child {
+            margin-top: 0;
+        }
+
+        .table-of-contents li {
+            margin: 0.08rem 0;
+            padding-left: 0.4rem;
+            border-left: 2px solid #30363d;
+            transition: border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .table-of-contents li:hover {
+            border-left-color: #ffcc66;
+        }
+
+        .table-of-contents a {
+            color: #e6edf3;
+            text-decoration: none;
+            display: block;
+            padding: 0.1rem 0;
+            transition: all 0.3s ease;
+            font-size: 0.65rem;
+            line-height: 1.1;
+            font-weight: 400;
+            text-align: left;
+        }
+
+        .table-of-contents a:hover {
+            color: #ffcc66;
+            text-shadow: 0 0 5px rgba(255, 204, 102, 0.3);
+        }
+
+        /* Nested TOC levels */
+        .table-of-contents ul ul {
+            margin-left: 0.4rem;
+            margin-top: 0.05rem;
+        }
+
+        .table-of-contents ul ul li {
+            font-size: 0.5rem;
+            border-left-color: #21262d;
+            padding-left: 0.4rem;
+            margin: 0.04rem 0;
+        }
+
+        .table-of-contents ul ul a {
+            color: #8b949e;
+        }
+
+        .table-of-contents ul ul a:hover {
+            color: #ffcc66;
+        }
+
+
+        /* TOC links styling */
+        .toc-container a {
+            color: #8b949e;
+            text-decoration: none;
+            font-size: 11px;
+            line-height: 1.3;
+            display: block;
+            padding: 3px 6px;
+            border-radius: 3px;
+            transition: all 0.2s ease;
+            text-align: left;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            text-transform: none;
+            font-variant: normal;
+            width: calc(100% - 4px);
+            box-sizing: border-box;
+            margin-left: 2px;
+        }
+
+        .toc-container a:hover {
+            color: #f0f6fc;
+            background: rgba(56, 139, 253, 0.1);
+        }
+
+        .toc-container a.active {
+            color: #ffcc66;
+            background: rgba(255, 204, 102, 0.1);
+            border-left: 2px solid #ffcc66;
+            font-weight: 500;
+        }
+
+
+
+
+
+    </style>
+
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#ffcc66',
+                primaryTextColor: '#eee',
+                primaryBorderColor: '#666',
+                lineColor: '#666',
+                secondaryColor: '#333',
+                tertiaryColor: '#222',
+                background: 'transparent',
+                darkmode: true
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Convert code blocks with language="mermaid" to mermaid diagrams
+            const mermaidBlocks = document.querySelectorAll('code[data-lang="mermaid"]');
+            mermaidBlocks.forEach(function(block, index) {
+                const content = block.textContent;
+                const div = document.createElement('div');
+                div.className = 'mermaid';
+                div.textContent = content;
+                div.id = 'mermaid-' + index;
+                block.parentElement.replaceWith(div);
+            });
+
+            // Initialize mermaid
+            mermaid.run();
+        });
+
+        // Dark Mode Toggle Function
+        function toggleDarkMode() {
+            const body = document.body;
+            const darkVideo = document.getElementById('darkVideo');
+            const lightVideo = document.getElementById('lightVideo');
+            const darkModeText = document.getElementById('darkModeText');
+
+            body.classList.toggle('light-mode');
+
+            if (body.classList.contains('light-mode')) {
+                // Switch to Light Mode
+                darkVideo.style.display = 'none';
+                lightVideo.style.display = 'block';
+                darkModeText.textContent = '☠️';
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                // Switch to Dark Mode
+                darkVideo.style.display = 'block';
+                lightVideo.style.display = 'none';
+                darkModeText.textContent = '☠️';
+                localStorage.setItem('darkMode', 'true');
+            }
+        }
+
+        // Load saved preference on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedMode = localStorage.getItem('darkMode');
+            // Default to dark mode, only switch to light if explicitly saved as false
+            if (savedMode === 'false') {
+                toggleDarkMode();
+            }
+            // If no saved preference, ensure we're in dark mode (default)
+            if (!savedMode) {
+                localStorage.setItem('darkMode', 'true');
+            }
+
+            // Auto-redirect to browser language if first visit
+
+        // TOC visibility based on scroll position
+        function handleTOCVisibility() {
+            const nav = document.querySelector('nav');
+            const toc = document.querySelector('.toc-container');
+            const container = document.querySelector('.container');
+
+            if (!nav || !toc || !container) return;
+
+            const navRect = nav.getBoundingClientRect();
+            const isNavVisible = navRect.bottom > 0;
+
+            if (isNavVisible) {
+                toc.classList.remove('show');
+                container.classList.remove('toc-visible');
+            } else {
+                toc.classList.add('show');
+                container.classList.add('toc-visible');
+            }
+        }
+
+        // Update active TOC link based on current heading
+        function updateActiveTOCLink() {
+            const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            const tocLinks = document.querySelectorAll('.toc-container a');
+
+            if (!headings.length || !tocLinks.length) return;
+
+            let currentHeading = null;
+            const scrollPosition = window.scrollY + 100; // Offset for better detection
+
+            // Find the current heading
+            for (let i = headings.length - 1; i >= 0; i--) {
+                const heading = headings[i];
+                if (heading.offsetTop <= scrollPosition) {
+                    currentHeading = heading;
+                    break;
+                }
+            }
+
+            // Remove active class from all links
+            tocLinks.forEach(link => link.classList.remove('active'));
+
+            // Add active class to current heading's link
+            if (currentHeading && currentHeading.id) {
+                const activeLink = document.querySelector(`.toc-container a[href="#${currentHeading.id}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+        }
+
+        // Combined scroll handler
+        function handleScroll() {
+            handleTOCVisibility();
+            updateActiveTOCLink();
+        }
+
+        // Listen for scroll events
+        window.addEventListener('scroll', handleScroll);
+
+        // Initial check
+        handleScroll();
+
+        // Add copy buttons to code blocks
+        function addCopyButtons() {
+            const codeBlocks = document.querySelectorAll('pre');
+
+            codeBlocks.forEach((pre) => {
+                // Skip if button already exists
+                if (pre.querySelector('.copy-button')) return;
+
+                // Create copy button
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.textContent = 'Copy';
+
+                const code = pre.querySelector('code');
+
+                // Function to get clean code text
+                function getCodeText() {
+                    let text = '';
+                    if (code) {
+                        // Clone the code element to avoid modifying the original
+                        const codeClone = code.cloneNode(true);
+
+                        // Remove line number elements (common classes/attributes)
+                        const lineNumbers = codeClone.querySelectorAll('.line-number, .ln, [data-line-number], .highlight-line-number');
+                        lineNumbers.forEach(el => el.remove());
+
+                        // Remove any span that contains only numbers and whitespace (likely line numbers)
+                        const spans = codeClone.querySelectorAll('span');
+                        spans.forEach(span => {
+                            if (/^\s*\d+\s*$/.test(span.textContent)) {
+                                span.remove();
+                            }
+                        });
+
+                        // Get text with proper line breaks preserved
+                        text = codeClone.innerText || codeClone.textContent;
+                    } else {
+                        text = pre.innerText || pre.textContent;
+                    }
+                    return text.trim();
+                }
+
+                // Copy button event listener
+                copyButton.addEventListener('click', async () => {
+                    const text = getCodeText();
+
+                    try {
+                        await navigator.clipboard.writeText(text);
+                        copyButton.textContent = 'Copied!';
+                        copyButton.classList.add('copied');
+
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy';
+                            copyButton.classList.remove('copied');
+                        }, 2000);
+                    } catch (err) {
+                        // Fallback for older browsers
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        textarea.style.position = 'fixed';
+                        textarea.style.opacity = '0';
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+
+                        copyButton.textContent = 'Copied!';
+                        copyButton.classList.add('copied');
+
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy';
+                            copyButton.classList.remove('copied');
+                        }, 2000);
+                    }
+                });
+
+                pre.appendChild(copyButton);
+            });
+        }
+
+        // Add copy buttons when page loads
+        document.addEventListener('DOMContentLoaded', addCopyButtons);
+
+        // Also add them immediately in case DOMContentLoaded already fired
+        addCopyButtons();
+
+        // Make wizard emoji clickable to play audio
+        function initWizardAudio() {
+            const textNodes = document.createTreeWalker(
+                document.body,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+
+            let node;
+            while (node = textNodes.nextNode()) {
+                if (node.textContent.includes('🧙')) {
+                    const parent = node.parentElement;
+                    if (parent && parent.tagName !== 'SCRIPT' && parent.tagName !== 'STYLE') {
+                        const text = node.textContent;
+                        const parts = text.split('🧙');
+
+                        if (parts.length > 1) {
+                            // Create a clickable span for the wizard emoji
+                            const wizardSpan = document.createElement('span');
+                            wizardSpan.textContent = '🧙';
+                            wizardSpan.style.cursor = 'pointer';
+                            wizardSpan.style.fontSize = '1.2em';
+                            wizardSpan.title = 'Cliquer pour écouter';
+                            wizardSpan.addEventListener('click', playMerlinAudio);
+
+                            // Replace the text node
+                            const fragment = document.createDocumentFragment();
+                            fragment.appendChild(document.createTextNode(parts[0]));
+                            fragment.appendChild(wizardSpan);
+                            fragment.appendChild(document.createTextNode(parts.slice(1).join('🧙')));
+
+                            parent.replaceChild(fragment, node);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        function playMerlinAudio() {
+            // Create or get existing audio element
+            let audio = document.getElementById('merlin-audio');
+
+            if (!audio) {
+                audio = document.createElement('audio');
+                audio.id = 'merlin-audio';
+                audio.src = '{{ "cv-merlin.mp3" | absURL }}';
+                audio.preload = 'auto';
+                document.body.appendChild(audio);
+            }
+
+            // Play the audio
+            audio.currentTime = 0; // Reset to beginning
+            audio.play().catch(error => {
+                console.log('Audio play failed:', error);
+                // Fallback: try to play anyway
+                setTimeout(() => audio.play(), 100);
+            });
+        }
+
+        // Initialize wizard audio on page load
+        document.addEventListener('DOMContentLoaded', initWizardAudio);
+        // Also initialize immediately if DOM already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initWizardAudio);
+        } else {
+            initWizardAudio();
+        }
+
+            const hasVisited = localStorage.getItem('hasVisited');
+            if (!hasVisited) {
+                const userLang = navigator.language || navigator.userLanguage;
+                const currentPath = window.location.pathname;
+
+                // Check if we're on the root and user prefers English
+                if (currentPath === '/' && (userLang.startsWith('en') || userLang.startsWith('en-'))) {
+                    window.location.href = '/en/';
+                }
+                // Check if we're on /en/ and user prefers French
+                else if (currentPath.startsWith('/en/') && (userLang.startsWith('fr') || userLang.startsWith('fr-'))) {
+                    const frenchPath = currentPath.replace('/en/', '/');
+                    window.location.href = frenchPath === '/' ? '/' : frenchPath;
+                }
+
+                localStorage.setItem('hasVisited', 'true');
+            }
+        });
+    </script>
+</head>
+<body>
+<!-- Dark Mode Toggle & Language Flags & Social Links -->
+<div class="dark-mode-toggle">
+    <button id="darkModeBtn" onclick="toggleDarkMode()">
+        <span id="darkModeText">☠️</span>
+    </button>
+    {{ range .Site.Languages }}
+    {{ $url := "" }}
+    {{ if eq .Lang "fr" }}
+        {{ if eq $.Site.Language.Lang "en" }}
+            {{ $url = strings.TrimPrefix "/en" $.RelPermalink }}
+        {{ else }}
+            {{ $url = $.RelPermalink }}
+        {{ end }}
+    {{ else }}
+        {{ if eq $.Site.Language.Lang "fr" }}
+            {{ $url = printf "/%s%s" .Lang $.RelPermalink }}
+        {{ else }}
+            {{ $url = $.RelPermalink }}
+        {{ end }}
+    {{ end }}
+    <a href="{{ $url }}" class="language-flag {{ if eq .Lang $.Site.Language.Lang }}current{{ end }}">{{ if eq .Lang "fr" }}🇫🇷{{ else }}🇬🇧{{ end }}</a>
+    {{ end }}
+
+    <a href="https://linkedin.com/in/🇪🇺-jean-yves-camier-a6889279/" target="_blank" class="social-icon">
+        <img src="{{ "linkedin-logo.png" | relURL }}" alt="LinkedIn">
+    </a>
+    <a href="https://github.com/jycamier" target="_blank" class="social-icon">
+        <img src="{{ "github-logo.png" | relURL }}" alt="GitHub">
+    </a>
+</div>
+
+<video id="darkVideo" class="video-background" autoplay muted loop playsinline>
+    <source src="{{ "test.mp4" | relURL }}" type="video/mp4">
+</video>
+<video id="lightVideo" class="video-background" autoplay muted loop playsinline style="display: none;">
+    <source src="{{ "dark-mod-off.mp4" | relURL }}" type="video/mp4">
+</video>
+<div class="film-background"></div>
+<div class="noise"></div>
+<div class="scratches"></div>
+
+<nav>
+    {{ range .Site.Menus.main }}
+    <a href="{{ .URL }}" {{ if or ($.IsMenuCurrent "main" .) ($.HasMenuCurrent "main" .) }}class="active"{{ end }}>{{ .Name }}</a>
+    {{ end }}
+</nav>
+
+{{ if and .TableOfContents (ne .RelPermalink "/") }}
+<div class="toc-container">
+    <nav class="table-of-contents">
+        {{ .TableOfContents }}
+    </nav>
+</div>
+{{ end }}
+
+<div class="container">
+    {{ block "main" . }}{{ end }}
+</div>
+</body>
+</html>
