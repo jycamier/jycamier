@@ -1,4 +1,4 @@
-baseURL = 'https://jycamier.github.io/jycamier/'
+baseURL = 'https://jean-yves.camier.family/'
 defaultContentLanguage = 'fr'
 title = "Jean-Yves Camier – Parcours, Projets & Billets Techniques"
 canonifyURLs = true
